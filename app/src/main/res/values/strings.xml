@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">MyFriendsApp</string>
+    <string name="firstNameHint">Add a first Name</string>
+    <string name="lastNameHint">Add a last Name</string>
+    <string name="phoneHint">Add a Phonenr</string>
+    <string name="emailHint">Add an Email</string>
+    <string name="nameLabel">Full Name</string>
+    <string name="phoneLabel">Phone number</string>
+    <string name="favoriteLabel">Favorite</string>
+    <string name="emailLabel">Email</string>
+    <string name="new_friend">Add Friend</string>
+    <string name="phonebtn">Call now</string>
+    <string name="emailbtn">Email now</string>
+</resources>
