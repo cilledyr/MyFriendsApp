@@ -1,6 +1,5 @@
 package com.cilledyr.myfriendsapp
 
-import android.location.Address
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.*
@@ -13,6 +12,8 @@ data class BEFriend(@PrimaryKey val id: UUID = UUID.randomUUID(),
                     var website: String = "",
                     var birthday: Date = Date(),
                     var email: String = "",
+                    var coordinateX: Double = 0.0,
+                    var coordinateY: Double = 0.0,
                     //var address: Address  = Address(Locale.getDefault()),
                     var isFavorite: Boolean = false) {
     val photoFileName

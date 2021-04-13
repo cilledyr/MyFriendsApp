@@ -14,4 +14,5 @@
     <string name="smsbtn">SMS now</string>
     <string name="webLabel">Website</string>
     <string name="webSeebtn">Go to Site</string>
+    <string name="title_activity_maps">Map</string>
 </resources>

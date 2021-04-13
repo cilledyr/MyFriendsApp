@@ -1,35 +1,22 @@
 package com.cilledyr.myfriendsapp
 
-import android.Manifest
 import android.app.Activity
-import android.app.Instrumentation
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
-import android.location.Address
-import android.location.LocationManager
-import android.location.LocationProvider
 import android.net.Uri
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import java.io.File
-import java.security.Permission
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -50,6 +37,8 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var emailBtn: Button
     private lateinit var phoneBtn: Button
+    private lateinit var locationBtn: Button
+    private lateinit var mapBtn: Button
     private lateinit var smsBtn: Button
     private lateinit var webField: EditText
     private lateinit var webSeeBtn: Button
@@ -101,7 +90,9 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
         favoriteChkbx = view.findViewById(R.id.cbFavorite) as CheckBox
         phoneBtn = view.findViewById(R.id.btnCall) as Button
         emailBtn = view.findViewById(R.id.btnMail) as Button
+        mapBtn = view.findViewById(R.id.btnMap) as Button
         smsBtn = view.findViewById(R.id.btnSMS) as Button
+        locationBtn = view.findViewById(R.id.btnLocation) as Button
         webField = view.findViewById(R.id.etWebsite) as EditText
         webSeeBtn = view.findViewById(R.id.btnWeb) as Button
         photoBtn = view.findViewById(R.id.btnPhoto) as ImageButton
@@ -120,9 +111,11 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
                 friend?.let {
                     this.friend = friend
                     photoFile = friendDetailViewModel.getPhotoFile(friend)
-                    photoUri = FileProvider.getUriForFile(requireActivity(),
-                    "com.cilledyr.myfriendsapp.fileprovider",
-                    photoFile)
+                    photoUri = FileProvider.getUriForFile(
+                        requireActivity(),
+                        "com.cilledyr.myfriendsapp.fileprovider",
+                        photoFile
+                    )
                     UpdateUI()
                 }
             })
@@ -203,7 +196,7 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
         webField.addTextChangedListener(WebWatcher)
 
         favoriteChkbx.apply {
-            setOnCheckedChangeListener{_, isChecked ->
+            setOnCheckedChangeListener{ _, isChecked ->
             friend.isFavorite = isChecked
             }
         }
@@ -226,6 +219,10 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
                 data = Uri.parse("smsto:${friend.phoneNr}")
             }.also { intent -> startActivity(intent) }
         }
+        mapBtn.setOnClickListener{
+            val intent = Intent(activity,MapsActivity::class.java)
+            startActivity(intent)
+        }
 
         emailBtn.setOnClickListener {
             Intent(Intent.ACTION_SENDTO).apply {
@@ -233,19 +230,26 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
                 putExtra(Intent.EXTRA_EMAIL, friend.email)
             }.also { intent -> startActivity(intent) }
         }
+        locationBtn.setOnClickListener{
+            Toast.makeText(getActivity(), "This is my Toast message!",
+                Toast.LENGTH_LONG).show();
+        }
         webSeeBtn.setOnClickListener {
             Intent(Intent.ACTION_VIEW).apply {
                 data = Uri.parse(friend.website)
             }.also { intent -> startActivity(intent) }
         }
 
+
         photoBtn.apply {
             val packageManager: PackageManager = requireActivity().packageManager
 
             val captureImage = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             val resolvedActivity: ResolveInfo? =
-                    packageManager.resolveActivity(captureImage,
-                    PackageManager.MATCH_DEFAULT_ONLY)
+                    packageManager.resolveActivity(
+                        captureImage,
+                        PackageManager.MATCH_DEFAULT_ONLY
+                    )
             if(resolvedActivity == null) {
                 isEnabled = false
             }
@@ -254,14 +258,17 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
                 captureImage.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
 
                 val cameraActivities: List<ResolveInfo> =
-                        packageManager.queryIntentActivities(captureImage,
-                        PackageManager.MATCH_DEFAULT_ONLY)
+                        packageManager.queryIntentActivities(
+                            captureImage,
+                            PackageManager.MATCH_DEFAULT_ONLY
+                        )
 
                 for(cameraActivity in cameraActivities) {
                     requireActivity().grantUriPermission(
                         cameraActivity.activityInfo.packageName,
                         photoUri,
-                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    )
                 }
                 startActivityForResult(captureImage, REQUEST_PHOTO)
             }
@@ -308,8 +315,10 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
             resultCode != Activity.RESULT_OK -> return
 
             requestCode == REQUEST_PHOTO -> {
-                requireActivity().revokeUriPermission(photoUri,
-                Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                requireActivity().revokeUriPermission(
+                    photoUri,
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
                 updatePhotoView()
             }
         }
@@ -317,8 +326,10 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
 
     override fun onDetach() {
         super.onDetach()
-        requireActivity().revokeUriPermission(photoUri,
-                Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        requireActivity().revokeUriPermission(
+            photoUri,
+            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        )
     }
 
     private fun updatePhotoView() {
@@ -348,6 +359,8 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
         val sdf = SimpleDateFormat("dd - MM - yyyy")
         return sdf.format(date)
     }
+
+
 
 
     companion object {
