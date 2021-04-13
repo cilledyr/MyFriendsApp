@@ -17,9 +17,7 @@ import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
@@ -52,17 +50,37 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var emailBtn: Button
     private lateinit var phoneBtn: Button
+    private lateinit var smsBtn: Button
+    private lateinit var webField: EditText
+    private lateinit var webSeeBtn: Button
     private lateinit var photoBtn: ImageButton
     private lateinit var photoView: ImageView
     private lateinit var photoFile: File
     private lateinit var photoUri: Uri
 
+
     private val friendDetailViewModel: FriendDetailViewModel by lazy {
         ViewModelProviders.of(this).get(FriendDetailViewModel::class.java)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_friend, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            R.id.deleteFriend -> {
+                friendDetailViewModel.deleteFriend(friend)//The detailViewMOdel handles hte delete action.
+                activity?.onBackPressed();
+                true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this.requireActivity())
         friend = BEFriend()
         val friendId: UUID = arguments?.getSerializable(ARG_FRIEND_ID) as UUID
@@ -83,8 +101,12 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
         favoriteChkbx = view.findViewById(R.id.cbFavorite) as CheckBox
         phoneBtn = view.findViewById(R.id.btnCall) as Button
         emailBtn = view.findViewById(R.id.btnMail) as Button
+        smsBtn = view.findViewById(R.id.btnSMS) as Button
+        webField = view.findViewById(R.id.etWebsite) as EditText
+        webSeeBtn = view.findViewById(R.id.btnWeb) as Button
         photoBtn = view.findViewById(R.id.btnPhoto) as ImageButton
         photoView = view.findViewById(R.id.imgFriendPhoto) as ImageView
+
 
 
         return view
@@ -161,10 +183,24 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
 
             }
         }
+        val WebWatcher = object: TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                friend.website = p0.toString()
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+
+            }
+        }
         firstNameField.addTextChangedListener(FirstNameWatcher)
         lastNameField.addTextChangedListener(LastNameWatcher)
         phoneField.addTextChangedListener(PhoneWatcher)
         emailField.addTextChangedListener(EmailWatcher)
+        webField.addTextChangedListener(WebWatcher)
 
         favoriteChkbx.apply {
             setOnCheckedChangeListener{_, isChecked ->
@@ -185,10 +221,21 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
             }.also { intent -> startActivity(intent) }
         }
 
+        smsBtn.setOnClickListener {
+            Intent(Intent.ACTION_SENDTO).apply {
+                data = Uri.parse("smsto:${friend.phoneNr}")
+            }.also { intent -> startActivity(intent) }
+        }
+
         emailBtn.setOnClickListener {
             Intent(Intent.ACTION_SENDTO).apply {
                 data = Uri.parse("mailto:")
                 putExtra(Intent.EXTRA_EMAIL, friend.email)
+            }.also { intent -> startActivity(intent) }
+        }
+        webSeeBtn.setOnClickListener {
+            Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse(friend.website)
             }.also { intent -> startActivity(intent) }
         }
 
@@ -288,7 +335,8 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
         lastNameField.setText(friend.lastName)
         phoneField.setText(friend.phoneNr)
         emailField.setText(friend.email)
-        dateButton.setText(getTheDateString(friend.birthday))
+        dateButton.setText("Birthday is: " + getTheDateString(friend.birthday))
+        webField.setText(friend.website)
         favoriteChkbx.apply {
             isChecked = friend.isFavorite
             jumpDrawablesToCurrentState()
@@ -300,6 +348,7 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
         val sdf = SimpleDateFormat("dd - MM - yyyy")
         return sdf.format(date)
     }
+
 
     companion object {
 

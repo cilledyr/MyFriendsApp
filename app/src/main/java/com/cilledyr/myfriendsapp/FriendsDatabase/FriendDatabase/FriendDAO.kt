@@ -1,10 +1,7 @@
 package com.cilledyr.myfriendsapp.FriendsDatabase.FriendDatabase
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import com.cilledyr.myfriendsapp.BEFriend
 import java.util.*
 
@@ -21,4 +18,7 @@ interface FriendDAO {
 
     @Insert
     fun addNewFriend(friend: BEFriend)
+
+    @Delete
+    fun deleteFriend(friend: BEFriend) //Delete friend from DB.
 }

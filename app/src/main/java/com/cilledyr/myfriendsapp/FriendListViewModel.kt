@@ -1,6 +1,7 @@
 package com.cilledyr.myfriendsapp
 
 import androidx.lifecycle.ViewModel
+import java.io.File
 
 class FriendListViewModel : ViewModel() {
 
@@ -10,6 +11,10 @@ class FriendListViewModel : ViewModel() {
 
     fun addFriend(friend: BEFriend) {
         friendRepo.addNewFriend(friend)
+    }
+
+    fun getPhotoFile(friend: BEFriend): File {
+        return friendRepo.getPhotoFile(friend)
     }
 /*val mFriends = mutableListOf<BEFriend>()
 

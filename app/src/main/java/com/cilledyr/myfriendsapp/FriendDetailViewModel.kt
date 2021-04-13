@@ -28,4 +28,9 @@ class FriendDetailViewModel() : ViewModel() {
     fun getPhotoFile(friend: BEFriend): File {
         return friendRepo.getPhotoFile(friend)
     }
+
+
+    fun deleteFriend(friend: BEFriend) {
+        friendRepo.deleteFriend(friend) //Send through repo to delete the friend.
+    }
 }

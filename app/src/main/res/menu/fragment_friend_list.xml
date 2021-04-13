@@ -6,4 +6,5 @@
     android:icon="@android:drawable/ic_menu_add"
     android:title="@string/new_friend"
     app:showAsAction="ifRoom|withText"/>
+
 </menu>

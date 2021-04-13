@@ -11,4 +11,7 @@
     <string name="new_friend">Add Friend</string>
     <string name="phonebtn">Call now</string>
     <string name="emailbtn">Email now</string>
+    <string name="smsbtn">SMS now</string>
+    <string name="webLabel">Website</string>
+    <string name="webSeebtn">Go to Site</string>
 </resources>
