@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity(), FriendListFragment.Callbacks {
         }
     }
 
-    override fun onFriendSelected(friendID: UUID) {
+    override fun onFriendSelected(friendID: String) {
         val fragment = FriendFragment1.newInstance(friendID)
         supportFragmentManager
                 .beginTransaction()

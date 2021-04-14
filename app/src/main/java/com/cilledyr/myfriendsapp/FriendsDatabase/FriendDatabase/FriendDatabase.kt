@@ -8,20 +8,20 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.cilledyr.myfriendsapp.BEFriend
 
-@Database(entities = [BEFriend::class], version=8, exportSchema = false)
+@Database(entities = [BEFriend::class], version=9, exportSchema = false)
 @TypeConverters(FriendTypeConverter::class)
 abstract class FriendDatabase :RoomDatabase() {
 
     abstract fun friendDao(): FriendDAO
 }
 
-val migration_7_8 = object : Migration(7, 8) {
+val migration_8_9 = object : Migration(8, 9) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL(
-            "ALTER TABLE BeFriend ADD COLUMN coordinateX DOUBLE NOT NULL DEFAULT ''"
+            "ALTER TABLE BeFriend ADD COLUMN coordinatX TEXT NOT NULL DEFAULT ''"
         )
         database.execSQL(
-            "ALTER TABLE BeFriend ADD COLUMN coordinateY DOUBLE NOT NULL DEFAULT ''"
+            "ALTER TABLE BeFriend ADD COLUMN coordinatY TEXT NOT NULL DEFAULT ''"
         )
     }
 }

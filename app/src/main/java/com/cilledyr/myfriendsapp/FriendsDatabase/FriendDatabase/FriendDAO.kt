@@ -10,6 +10,9 @@ interface FriendDAO {
     @Query("SELECT * FROM befriend WHERE id=(:id)")
     fun getFriendByID(id: UUID): LiveData<BEFriend?>
 
+    @Query("SELECT * FROM befriend WHERE id=(:id)")
+    fun getFriendByIDString(id: String): LiveData<BEFriend?>
+
     @Query("SELECT * FROM befriend")
     fun getAllFriends(): LiveData<List<BEFriend>>
 

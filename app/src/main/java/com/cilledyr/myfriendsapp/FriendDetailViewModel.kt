@@ -10,14 +10,14 @@ import java.util.*
 
 class FriendDetailViewModel() : ViewModel() {
     private val friendRepo = FriendRepository.get()
-    private val friendIdLiveData = MutableLiveData<UUID>()
+    private val friendIdLiveData = MutableLiveData<String>()
 
     var friendLiveData: LiveData<BEFriend?> =
         Transformations.switchMap(friendIdLiveData) { friendId ->
-            friendRepo.getFriendByID(friendId)
+            friendRepo.getFriendByIDString(friendId)
         }
 
-    fun loadFriend(friendId: UUID) {
+    fun loadFriend(friendId: String) {
         friendIdLiveData.value = friendId
     }
 

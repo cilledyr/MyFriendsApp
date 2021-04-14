@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
-import java.util.*
 
 private const val TAG = "FriendListFragment"
 
@@ -23,7 +22,7 @@ class FriendListFragment : Fragment() {
     private lateinit var photoUri: Uri
 
     interface Callbacks {
-        fun onFriendSelected(friendID: UUID)
+        fun onFriendSelected(friendID: String)
     }
 
     private var callbacks: Callbacks? = null

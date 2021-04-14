@@ -46,6 +46,7 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
     private lateinit var photoView: ImageView
     private lateinit var photoFile: File
     private lateinit var photoUri: Uri
+    private lateinit var gpsUtils: GPSUtils
 
 
     private val friendDetailViewModel: FriendDetailViewModel by lazy {
@@ -69,17 +70,20 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        gpsUtils = GPSUtils.getInstance()
+        gpsUtils.initPermissions(this.requireActivity())
+        gpsUtils.findDeviceLocation(this.requireActivity())
         setHasOptionsMenu(true)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this.requireActivity())
         friend = BEFriend()
-        val friendId: UUID = arguments?.getSerializable(ARG_FRIEND_ID) as UUID
+        val friendId: String = arguments?.getSerializable(ARG_FRIEND_ID) as String
         friendDetailViewModel.loadFriend(friendId)
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_friend, container, false)
         firstNameField = view.findViewById<EditText>(R.id.etFirstName) as EditText
@@ -106,19 +110,19 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         friendDetailViewModel.friendLiveData.observe(
-            viewLifecycleOwner,
-            androidx.lifecycle.Observer { friend ->
-                friend?.let {
-                    this.friend = friend
-                    photoFile = friendDetailViewModel.getPhotoFile(friend)
-                    photoUri = FileProvider.getUriForFile(
-                        requireActivity(),
-                        "com.cilledyr.myfriendsapp.fileprovider",
-                        photoFile
-                    )
-                    UpdateUI()
-                }
-            })
+                viewLifecycleOwner,
+                androidx.lifecycle.Observer { friend ->
+                    friend?.let {
+                        this.friend = friend
+                        photoFile = friendDetailViewModel.getPhotoFile(friend)
+                        photoUri = FileProvider.getUriForFile(
+                                requireActivity(),
+                                "com.cilledyr.myfriendsapp.fileprovider",
+                                photoFile
+                        )
+                        UpdateUI()
+                    }
+                })
     }
 
     override fun onStart() {
@@ -220,7 +224,9 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
             }.also { intent -> startActivity(intent) }
         }
         mapBtn.setOnClickListener{
-            val intent = Intent(activity,MapsActivity::class.java)
+            val intent = Intent(activity, MapsActivity::class.java)
+            intent.putExtra("coordinateX", friend.coordinatX)
+            intent.putExtra("coordinateY", friend.coordinatY)
             startActivity(intent)
         }
 
@@ -231,9 +237,15 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
             }.also { intent -> startActivity(intent) }
         }
         locationBtn.setOnClickListener{
-            Toast.makeText(getActivity(), "This is my Toast message!",
-                Toast.LENGTH_LONG).show();
+            friend.coordinatX = gpsUtils.latitude.toString()
+            friend.coordinatY = gpsUtils.longitude.toString()
+            friendDetailViewModel.saveFriend(friend)
+            Toast.makeText(activity, "Location Updated", Toast.LENGTH_SHORT).show()
+
         }
+
+
+
         webSeeBtn.setOnClickListener {
             Intent(Intent.ACTION_VIEW).apply {
                 data = Uri.parse(friend.website)
@@ -247,8 +259,8 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
             val captureImage = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             val resolvedActivity: ResolveInfo? =
                     packageManager.resolveActivity(
-                        captureImage,
-                        PackageManager.MATCH_DEFAULT_ONLY
+                            captureImage,
+                            PackageManager.MATCH_DEFAULT_ONLY
                     )
             if(resolvedActivity == null) {
                 isEnabled = false
@@ -259,21 +271,24 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
 
                 val cameraActivities: List<ResolveInfo> =
                         packageManager.queryIntentActivities(
-                            captureImage,
-                            PackageManager.MATCH_DEFAULT_ONLY
+                                captureImage,
+                                PackageManager.MATCH_DEFAULT_ONLY
                         )
 
                 for(cameraActivity in cameraActivities) {
                     requireActivity().grantUriPermission(
-                        cameraActivity.activityInfo.packageName,
-                        photoUri,
-                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                            cameraActivity.activityInfo.packageName,
+                            photoUri,
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     )
                 }
                 startActivityForResult(captureImage, REQUEST_PHOTO)
             }
         }
     }
+
+
+
 
     override fun onStop() {
         super.onStop()
@@ -316,8 +331,8 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
 
             requestCode == REQUEST_PHOTO -> {
                 requireActivity().revokeUriPermission(
-                    photoUri,
-                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        photoUri,
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 )
                 updatePhotoView()
             }
@@ -327,8 +342,8 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
     override fun onDetach() {
         super.onDetach()
         requireActivity().revokeUriPermission(
-            photoUri,
-            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                photoUri,
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION
         )
     }
 
@@ -365,7 +380,7 @@ class FriendFragment : Fragment(), DatePickerFragment.Callbacks {
 
     companion object {
 
-        fun newInstance(friendId: UUID): FriendFragment {
+        fun newInstance(friendId: String): FriendFragment {
             val args = Bundle().apply {
                 putSerializable(ARG_FRIEND_ID, friendId)
             }
