@@ -14,8 +14,8 @@ data class BEFriend(@PrimaryKey val id: String = UUID.randomUUID().toString(),
                     var email: String = "",
                     var coordinatX: String = "",
                     var coordinatY: String = "",
-                    var coordinateX: Double = 0.0,
-                    var coordinateY: Double = 0.0,
+                    //var coordinateX: Double = 0.0,
+                    //var coordinateY: Double = 0.0,
                     //var address: Address  = Address(Locale.getDefault()),
                     var isFavorite: Boolean = false) {
     val photoFileName

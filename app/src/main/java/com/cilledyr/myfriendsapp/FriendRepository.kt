@@ -4,8 +4,9 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.cilledyr.myfriendsapp.FriendsDatabase.FriendDatabase.FriendDatabase
-import com.cilledyr.myfriendsapp.FriendsDatabase.FriendDatabase.migration_3_6
+import com.cilledyr.myfriendsapp.FriendsDatabase.FriendDatabase.migration_7_10
 import com.cilledyr.myfriendsapp.FriendsDatabase.FriendDatabase.migration_8_9
+import com.cilledyr.myfriendsapp.FriendsDatabase.FriendDatabase.migration_9_10
 import java.io.File
 import java.util.*
 import java.util.concurrent.Executors
@@ -18,7 +19,7 @@ class FriendRepository private constructor(context: Context) {
         context.applicationContext,
         FriendDatabase::class.java,
         DATABASE_NAME
-    ).addMigrations(migration_8_9)
+    ).addMigrations(migration_7_10, migration_8_9, migration_9_10)
         .build()
 
     private val friendDao = database.friendDao()
